@@ -1,16 +1,19 @@
 from fastapi import APIRouter
 from ..schemas.query_model import QueryRequest, QueryResponse
+from ..langchain_engine.executor import SQLExecutor
 
 router = APIRouter()
 
 
 @router.post("/execute", response_model=QueryResponse)
 async def execute_query(request: QueryRequest):
-    """
-    Dummy endpoint
-    """
-    nl = request.natural_language
+    result = SQLExecutor.execute(request.sql, request.max_rows)
     
-    dummy_sql = "SELECT * FROM users LIMIT 5;"
+    if "error" in result:
+        return QueryResponse(results=[], row_count=0, error=result["error"])
     
-    return QueryResponse(sql=dummy_sql, results=[{"message": f"Received NL: {nl}"}], warnings=[])
+    return QueryResponse(
+        results=result["rows"],
+        row_count=result["row_count"],
+        error=None
+    )

@@ -13,19 +13,13 @@ Users can type plain-English questions such as “Show the top 10 customers by r
 - [Introduction](#-introduction)
 - [Live Demo](#-live-demo)
 - [Features](#-features)
-  - [Customer Features](#%EF%B8%8F-customer-features)
-  - [Admin Features](#%E2%80%8D-adminrestaurant-features)
-  - [Real-Time System (WebSockets)](#-real-time-system-websockets)
+  - [Core Features](#%EF%B8%8F-customer-features)
+  - [Developer Features](#%EF%B8%8F-customer-features)
 - [Tech Stack](#-tech-stack)
 - [Architecture](#-architecture)
-- [Project Structure](#-project-structure)
 - [Installation Guide](#%EF%B8%8F-installation-guide)
 - [Environment Variables](#-environment-variables)
-- [Setting Up Redis (WSL--Windows--Linux)](#-setting-up-redis-wsl--windows--linux)
-- [Setting Up Supabase](#-setting-up-supabase)
-- [Security & Privacy](#-security--privacy)
-- [Future Enhancements](#-future-enhancements)
-- [License](#license)
+- [Security & Guardrails](#-security--privacy)
 
 ## 🎯 Introduction
 This project allows users to interact with a SQL database without writing SQL.
@@ -95,8 +89,8 @@ SQL Validator → Safe SQL Executor → JSON Results → Tailwind UI Renderer
 ## 🛠️ Installation Guide
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/Jeevan1975/Text-to-SQL.git
-   cd QR-Dine
+   https://github.com/Jeevan1975/Text-to-SQL.git
+   cd backend
    ```
 2. **Create Virtual Environment**
    ```bash
@@ -107,86 +101,32 @@ SQL Validator → Safe SQL Executor → JSON Results → Tailwind UI Renderer
    ```bash
    pip install -r requirements.txt
    ```
-4. **Apply Migrations**
-   ```bash
-   python manage.py migrate
+4. **Set Up Environment Variables**
    ```
-5. **Create Superuser**
-   ```bash
-   python manage.py createsuperuser
+   Create a .env inside the backend folder
    ```
-6. **Run Development Server**
+5. **Run Development Server**
    ```bash
-   python manage.py runserver
+    uvicorn app.main:app --reload
    ```
+
 
 ## 🌱 Environment Variables
-Create a `.env` file in the project root (values shown are examples):
+Create a `.env` file inside the backend folder (values shown are examples):
 ```
-ENVIRONMENT=development
-SECRET_KEY=<your-django-secret-key>
-DEBUG=True
+SUPABASE_HOST=aws-1-ap-south-1.pooler.supabase.com
+SUPABASE_PORT=6543
+SUPABASE_PASSWORD=<your-database-password>
+SUPABASE_USER=<supabase-user>
 
-SUPABASE_URL=<your-supabase-url>
-SUPABASE_KEY=<your-supabase-key>
-
-DATABASE_URL=<postgresql-url>
-DATABASE_PASSWORD=<password>
-
-REDIS_URL=redis://127.0.0.1:637
-SITE_BASE_URL=http://127.0.0.1:8000
+GOOGLE_API_KEY=<your-api-key>
 ```
 
-## 🐘 Setting Up Redis (WSL / Windows / Linux)
-### 💻 Ubuntu / Linux
-```bash
-sudo apt update
-sudo apt install redis-server
-sudo systemctl enable redis
-sudo systemctl start redis
-```
 
-### 🪟 Windows (Recommended: WSL)
-1. Enable WSL.
-2. Install Ubuntu from Microsoft Store.
-3. Inside Ubuntu:
-   ```bash
-   sudo apt update
-   sudo apt install redis-server
-   sudo service redis-server start
-   ```
-4. Test Redis:
-   ```bash
-   redis-cli ping
-   ```
+## 🔐 Security & Guardrails
+- Only SELECT queries are allowed
+- Forbidden: UPDATE, DELETE, INSERT, DROP, TRUNCATE, ALTER, REPLACE
+- All SQL validated before execution
+- All DB interactions use prepared statements via SQLAlchemy
+- API keys stored securely in .env
 
-> Windows native Redis is no longer officially supported; WSL is recommended.
-
-## 🌐 Setting Up Supabase
-1. Create a Supabase project at https://app.supabase.com.
-2. Create a **Storage Bucket** named `qr-images` and `menu-images`(public).
-3. Add keys to `.env`:
-   ```
-   SUPABASE_URL=...
-   SUPABASE_KEY=...
-   ```
-4. The system automatically generates QR PNGs, saves them to Supabase, returns the public URL, and stores it on each table model record.
-
-## 🔐 Security & Privacy
-- Table URLs use UUID-based tokens; QR codes encode `SITE_BASE_URL` + tokenized menu link.
-- Order updates use order-specific WebSocket channels.
-- Sensitive keys live in `.env`; keep `SECRET_KEY`, database, Supabase, and Redis credentials private.
-- Cart data is session-only; QR codes do not contain personal data.
-- Production settings enable HTTPS cookies and proxy headers when `ENVIRONMENT` is not `development`.
-
-## 📈 Future Enhancements
-- Online payment integration (Razorpay / Stripe).
-- Invoice PDF generator.
-- Kitchen Display System (KDS).
-- Push notifications for “Order Ready”.
-- Multi-restaurant SaaS support.
-- Customer login + loyalty points.
-- Analytics dashboard for sales & trends.
-
-## License
-This project is NOT open source. All rights reserved.

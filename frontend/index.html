@@ -1,61 +1,148 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Text-to-SQL — Demo</title>
+    <meta charset="UTF-8" />
+    <title>Text-to-SQL Query System</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-50 min-h-screen p-8">
-    <div class="max-w-3xl mx-auto bg-white rounded shadow p-6">
-        <h1 class="text-2xl font-semibold mb-4">Text-to-SQL — Demo</h1>
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-5xl mx-auto">
 
-        <textarea id="nlInput" rows="4" class="w-full border rounded p-2"
-            placeholder="Ask a question, e.g. 'show top 5 users by signup date'"></textarea>
+        <h1 class="text-3xl font-bold mb-6 text-center">Text-to-SQL Natural Language Query System</h1>
 
-        <div class="flex items-center gap-3 mt-3">
-            <button id="runBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Run</button>
-            <div id="status" class="text-sm text-gray-600"></div>
+        <!-- Query Box -->
+        <div class="bg-white p-6 rounded shadow">
+            <label class="block text-gray-700 font-medium mb-2">Ask a Question</label>
+            <textarea id="nlInput" rows="3" class="w-full border p-3 rounded focus:ring focus:ring-blue-300"
+                placeholder="Example: Show me the last 10 orders placed by users">
+      </textarea>
+
+            <div class="flex justify-between items-center mt-4">
+                <button id="runBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded">
+                    Run Query
+                </button>
+
+                <button id="toggleSchemaBtn" class="text-blue-600 hover:underline text-sm">
+                    Show Database Schema
+                </button>
+            </div>
         </div>
 
-        <div id="result" class="mt-6"></div>
+        <!-- Schema Viewer -->
+        <div id="schemaBox" class="hidden bg-white p-4 rounded shadow mt-4">
+            <h2 class="text-lg font-semibold mb-3">Database Schema</h2>
+            <pre id="schemaContent" class="text-sm bg-gray-50 p-3 rounded"></pre>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="hidden text-center mt-6">
+            <div class="animate-spin inline-block w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full">
+            </div>
+            <p class="mt-2 text-gray-600">Generating SQL & Executing Query...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="output" class="hidden bg-white p-6 rounded shadow mt-6">
+
+            <h2 class="text-xl font-semibold mb-3">Generated SQL</h2>
+            <pre id="sqlBox"
+                class="bg-gray-900 text-green-300 p-3 rounded text-sm overflow-x-auto whitespace-pre"></pre>
+
+            <div id="fixedSqlSection" class="hidden mt-5">
+                <h2 class="text-xl font-semibold mb-3">Fixed SQL (After Validation)</h2>
+                <pre id="fixedSqlBox"
+                    class="bg-gray-900 text-yellow-300 p-3 rounded text-sm overflow-x-auto whitespace-pre"></pre>
+            </div>
+
+            <h2 class="text-xl font-semibold mt-6">Results</h2>
+            <div id="resultsTable" class="overflow-x-auto mt-3"></div>
+
+            <div id="errorBox" class="hidden mt-5 text-red-600 font-medium"></div>
+        </div>
     </div>
 
+    <!-- JS Logic -->
     <script>
-        const runBtn = document.getElementById('runBtn');
-        const nlInput = document.getElementById('nlInput');
-        const result = document.getElementById('result');
-        const status = document.getElementById('status');
+        const runBtn = document.getElementById("runBtn");
+        const nlInput = document.getElementById("nlInput");
+        const output = document.getElementById("output");
+        const sqlBox = document.getElementById("sqlBox");
+        const fixedSqlSection = document.getElementById("fixedSqlSection");
+        const fixedSqlBox = document.getElementById("fixedSqlBox");
+        const resultsTable = document.getElementById("resultsTable");
+        const errorBox = document.getElementById("errorBox");
+        const loading = document.getElementById("loading");
+        const schemaBox = document.getElementById("schemaBox");
+        const schemaContent = document.getElementById("schemaContent");
+        const toggleSchemaBtn = document.getElementById("toggleSchemaBtn");
+
+        // Toggle schema viewer
+        toggleSchemaBtn.onclick = async () => {
+            schemaBox.classList.toggle("hidden");
+            if (!schemaContent.textContent.trim()) {
+                const res = await fetch("http://localhost:8000/schema/");
+                const data = await res.json();
+                schemaContent.textContent = JSON.stringify(data.schema, null, 2);
+            }
+        };
 
         runBtn.onclick = async () => {
             const nl = nlInput.value.trim();
-            if (!nl) return alert('Type a question!');
-            status.textContent = 'Calling API...';
+            if (!nl) return alert("Please enter a query!");
 
-            try {
-                const res = await fetch('http://localhost:8000/query/execute', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ natural_language: nl })
-                });
-                const data = await res.json();
-                status.textContent = '';
-                result.innerHTML = `
-            <div class="border p-4 rounded bg-gray-50">
-              <h3 class="font-semibold">Generated SQL</h3>
-              <pre class="mt-2 text-sm bg-white p-2 rounded">${data.sql}</pre>
-              <h3 class="mt-4 font-semibold">Results</h3>
-              <pre class="mt-2 text-sm">${JSON.stringify(data.results, null, 2)}</pre>
-            </div>
-          `;
-            } catch (err) {
-                status.textContent = '';
-                result.innerHTML = `<div class="text-red-600">Error: ${err.message}</div>`;
+            output.classList.add("hidden");
+            errorBox.classList.add("hidden");
+            loading.classList.remove("hidden");
+
+            const res = await fetch("http://localhost:8000/query/execute", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ natural_language: nl })
+            });
+
+            const data = await res.json();
+            loading.classList.add("hidden");
+            output.classList.remove("hidden");
+
+            sqlBox.textContent = data.sql || "No SQL generated.";
+
+            if (data.fixed_sql) {
+                fixedSqlSection.classList.remove("hidden");
+                fixedSqlBox.textContent = data.fixed_sql;
             }
-        }
+
+            if (data.error) {
+                errorBox.classList.remove("hidden");
+                errorBox.textContent = data.error;
+                resultsTable.innerHTML = "";
+                return;
+            }
+
+            // Render table if results exist
+            if (data.results && data.results.length > 0) {
+                const keys = Object.keys(data.results[0]);
+                let table = `<table class='min-w-full border rounded'><thead><tr>`;
+                keys.forEach(k => {
+                    table += `<th class='border px-2 py-1 bg-gray-100'>${k}</th>`;
+                });
+                table += `</tr></thead><tbody>`;
+                data.results.forEach(row => {
+                    table += `<tr>`;
+                    keys.forEach(k => {
+                        table += `<td class='border px-2 py-1'>${row[k]}</td>`;
+                    });
+                    table += `</tr>`;
+                });
+                table += `</tbody></table>`;
+                resultsTable.innerHTML = table;
+            } else {
+                resultsTable.innerHTML = "<p class='text-gray-500 mt-4'>No results returned.</p>";
+            }
+        };
     </script>
+
 </body>
 
 </html>

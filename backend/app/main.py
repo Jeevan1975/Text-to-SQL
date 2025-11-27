@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates
 from .routers import query_router, schema_router
 
 app = FastAPI(title="Text-to-SQL API")
+templates = Jinja2Templates(directory="../frontend")
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,6 +16,10 @@ app.add_middleware(
 
 app.include_router(query_router.router, prefix="/query", tags=["query"])
 app.include_router(schema_router.router, prefix="/schema", tags=["schema"])
+
+@app.get("/")
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request":request})
 
 
 @app.get("/health")

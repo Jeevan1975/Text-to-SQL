@@ -81,7 +81,7 @@
         toggleSchemaBtn.onclick = async () => {
             schemaBox.classList.toggle("hidden");
             if (!schemaContent.textContent.trim()) {
-                const res = await fetch("http://localhost:8000/schema/");
+                const res = await fetch("https://text-to-sql-9f81.onrender.com/schema/");
                 const data = await res.json();
                 schemaContent.textContent = JSON.stringify(data.schema, null, 2);
             }
@@ -95,7 +95,7 @@
             errorBox.classList.add("hidden");
             loading.classList.remove("hidden");
 
-            const res = await fetch("http://localhost:8000/query/execute", {
+            const res = await fetch("https://text-to-sql-9f81.onrender.com/query/execute", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ natural_language: nl })

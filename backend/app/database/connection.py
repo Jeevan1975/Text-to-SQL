@@ -4,7 +4,7 @@ from ..config import settings
 
 
 DATABASE_URL = (
-    f"postgresql://postgres:{settings.SUPABASE_PASSWORD}@{settings.SUPABASE_HOST}:{settings.SUPABASE_PORT}/postgres"
+    f"postgresql://{settings.SUPABASE_USER}:{settings.SUPABASE_PASSWORD}@{settings.SUPABASE_HOST}:{settings.SUPABASE_PORT}/postgres"
 )
 
 engine = create_engine(

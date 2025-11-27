@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     SUPABASE_HOST: str
     SUPABASE_PORT: int
     SUPABASE_PASSWORD: str
+    SUPABASE_USER: str
     GOOGLE_API_KEY: str
     ENV: str = "dev"
     

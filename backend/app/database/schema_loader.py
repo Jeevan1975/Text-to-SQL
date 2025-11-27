@@ -1,5 +1,5 @@
 from sqlalchemy import inspect
-from ..database.connection import engine
+from .connection import engine
 
 
 def load_schema():
@@ -17,3 +17,9 @@ def load_schema():
             for col in columns
         ]
     return schema
+
+
+
+
+if __name__=="__main__":
+    print(load_schema())

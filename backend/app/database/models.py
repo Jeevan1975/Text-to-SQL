@@ -14,7 +14,6 @@ class User(Base):
 class Order(Base):
     __tablename__ = "orders"
     id = Column(Integer, primary_key=True)
-    user = Column(String, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
     total = Column(Float)
     created_at = Column(DateTime)
-    

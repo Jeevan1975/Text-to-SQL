@@ -1,5 +1,7 @@
-from app.langchain_engine.llm import get_llm
-from app.langchain_engine.prompts import chat_prompt
+import asyncio
+from .llm import get_llm
+from .prompts import chat_prompt
+from ..database.schema_loader import load_schema
 
 
 async def run_langchain_pipeline(schema: str, nl: str, max_rows: int = 100):
@@ -11,9 +13,3 @@ async def run_langchain_pipeline(schema: str, nl: str, max_rows: int = 100):
     response = await model.ainvoke(messages)
     
     return response.content
-
-
-
-
-if __name__ == "main":
-    run_langchain_pipeline()

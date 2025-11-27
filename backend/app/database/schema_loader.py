@@ -11,7 +11,7 @@ def load_schema():
         schema[table_name] = [
             {
                 "name": col["name"],
-                "type": col["type"],
+                "type": str(col["type"]),
                 "nullable": col["nullable"]
             }
             for col in columns

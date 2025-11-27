@@ -2,11 +2,12 @@ from pydantic import BaseModel
 
 
 class QueryRequest(BaseModel):
-    sql: str
-    max_rows: int = 50
+    natural_language: str
+    max_rows: int = 100
     
 
 class QueryResponse(BaseModel):
-    results: list
+    sql: str
+    results: list | None = None
     row_count: int
     error: str | None = None

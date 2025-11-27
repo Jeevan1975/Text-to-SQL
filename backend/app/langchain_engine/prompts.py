@@ -29,3 +29,31 @@ chat_prompt = ChatPromptTemplate.from_messages([
         """.strip()
     ),
 ])
+
+
+
+# Fixer prompt if the generated SQL fails
+fixer_prompt = ChatPromptTemplate.from_messages([
+    SystemMessagePromptTemplate.from_template(
+        """
+        You are a helpful assistant that fixes invalid SQL queries.
+        You will be given the database schema and a SQL query that failed execution with an error message.
+        Return a corrected SELECT statement only. If the query cannot be fixed, return "ERROR: CANNOT_FIX".
+        Do not include any explanation or additional text.
+        """.strip()
+    ),
+    HumanMessagePromptTemplate.from_template(
+        """
+        Database schema:
+        {schema}
+
+        Bad SQL:
+        {bad_sql}
+
+        Error message:
+        {error_message}
+
+        Return a corrected SELECT statement with LIMIT {max_rows} where applicable.
+        """.strip()
+    ),
+])

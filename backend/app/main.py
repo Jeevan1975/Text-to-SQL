@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from .routers import query_router, schema_router
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
 
 app = FastAPI(title="Text-to-SQL API")

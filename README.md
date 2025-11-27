@@ -19,7 +19,7 @@ Users can type plain-English questions such as “Show the top 10 customers by r
 - [Architecture](#-architecture)
 - [Installation Guide](#%EF%B8%8F-installation-guide)
 - [Environment Variables](#-environment-variables)
-- [Security & Guardrails](#-security--privacy)
+- [Security & Guardrails](#-security--guardrails)
 
 ## 🎯 Introduction
 This project allows users to interact with a SQL database without writing SQL.

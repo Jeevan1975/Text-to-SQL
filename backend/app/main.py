@@ -3,10 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from .routers import query_router, schema_router
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
 
 app = FastAPI(title="Text-to-SQL API")
 
-app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 templates = Jinja2Templates(directory="../frontend")
 

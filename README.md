@@ -36,7 +36,7 @@ This project contains:
 
 
 ## 🌐 Live Demo
-- Website: [https://text-to-sql.com](https://text-to-sql-9f81.onrender.com)
+- Website: [https://text-to-sql.com](https://text-to-sql-nine.vercel.app)
 
 
 ## 🚀 Features

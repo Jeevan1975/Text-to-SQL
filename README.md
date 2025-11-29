@@ -127,6 +127,5 @@ GOOGLE_API_KEY=<your-api-key>
 - Only SELECT queries are allowed
 - Forbidden: UPDATE, DELETE, INSERT, DROP, TRUNCATE, ALTER, REPLACE
 - All SQL validated before execution
-- All DB interactions use prepared statements via SQLAlchemy
 - API keys stored securely in .env
 
